@@ -97,7 +97,10 @@ export function Filters({ listingType, onFilterChange, onSaveSearch, canSaveSear
                   />
                 </div>
                 <div className="flex gap-2">
-                  <Button variant="outline" onClick={() => resetFilter('minPrice') && resetFilter('maxPrice')}>
+                  <Button variant="outline" onClick={() => {
+                    resetFilter('minPrice')
+                    resetFilter('maxPrice')
+                  }}>
                     Reset
                   </Button>
                   <Button onClick={() => setPriceOpen(false)} className="flex-1">Done</Button>
@@ -177,7 +180,10 @@ export function Filters({ listingType, onFilterChange, onSaveSearch, canSaveSear
                   </Select>
                 </div>
                 <div className="flex gap-2">
-                  <Button variant="outline" onClick={() => resetFilter('minBed') && resetFilter('minBath')}>
+                  <Button variant="outline" onClick={() => {
+                    resetFilter('minBed')
+                    resetFilter('minBath')
+                  }}>
                     Reset
                   </Button>
                   <Button onClick={() => setBedBathOpen(false)} className="flex-1">Done</Button>
@@ -221,7 +227,10 @@ export function Filters({ listingType, onFilterChange, onSaveSearch, canSaveSear
                   />
                 </div>
                 <div className="flex gap-2">
-                  <Button variant="outline" onClick={() => resetFilter('minArea') && resetFilter('maxArea')}>
+                  <Button variant="outline" onClick={() => {
+                    resetFilter('minArea')
+                    resetFilter('maxArea')
+                  }}>
                     Reset
                   </Button>
                   <Button onClick={() => setAreaOpen(false)} className="flex-1">Done</Button>

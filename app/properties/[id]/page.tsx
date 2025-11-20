@@ -108,7 +108,7 @@ export default async function PropertyPage({ params }: PropertyPageProps) {
                 </div>
                 {property.images && property.images.length > 1 && (
                   <div className="grid grid-cols-4 gap-2 p-2">
-                    {property.images.slice(1, 5).map((img, idx) => (
+                    {property.images.slice(1, 5).map((img: string, idx: number) => (
                       <div key={idx} className="relative aspect-video">
                         <Image
                           src={img}
