@@ -21,7 +21,7 @@ export default function LoginPage() {
     setError(null)
 
     const supabase = createClient()
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data: authData, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     })
@@ -30,7 +30,40 @@ export default function LoginPage() {
       setError(error.message)
       setLoading(false)
     } else {
-      router.push('/dashboard')
+      // Check if user is associated with a real estate company
+      if (authData.user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('id, role')
+          .eq('id', authData.user.id)
+          .single()
+
+        if (profile) {
+          // Check if user is in real_estate_companies table
+          const { data: company } = await supabase
+            .from('real_estate_companies')
+            .select('id')
+            .eq('user_id', profile.id)
+            .single()
+
+          // If user is a real estate company user or has agent role, redirect to agent dashboard
+          if (company || profile.role === 'agent') {
+            router.push('/agent')
+            router.refresh()
+            return
+          }
+
+          // If admin, redirect to admin dashboard
+          if (profile.role === 'admin') {
+            router.push('/admin')
+            router.refresh()
+            return
+          }
+        }
+      }
+
+      // Default redirect to user dashboard
+      router.push('/user-dashboard')
       router.refresh()
     }
   }

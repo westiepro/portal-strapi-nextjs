@@ -6,16 +6,28 @@ import { createClient } from '@/lib/supabase/server'
 async function getAdminData() {
   const supabase = await createClient()
 
-  const [properties, users, agents] = await Promise.all([
-    supabase.from('properties').select('*').order('created_at', { ascending: false }),
+  const [properties, users, agents, companies] = await Promise.all([
+    supabase
+      .from('properties')
+      .select(`
+        *,
+        agents (
+          id,
+          company_name,
+          user_id
+        )
+      `)
+      .order('created_at', { ascending: false }),
     supabase.from('profiles').select('*').order('created_at', { ascending: false }),
     supabase.from('agents').select('*').order('created_at', { ascending: false }),
+    supabase.from('real_estate_companies').select('*').order('created_at', { ascending: false }),
   ])
 
   return {
     properties: properties.data || [],
     users: users.data || [],
     agents: agents.data || [],
+    companies: companies.data || [],
   }
 }
 
@@ -27,7 +39,7 @@ export default async function AdminPage() {
     redirect('/')
   }
 
-  const { properties, users, agents } = await getAdminData()
+  const { properties, users, agents, companies } = await getAdminData()
 
   const stats = {
     totalProperties: properties.length,
@@ -37,20 +49,14 @@ export default async function AdminPage() {
   }
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">Admin Dashboard</h1>
-          <p className="text-gray-600">Manage properties, users, and agents</p>
-        </div>
-
-        <AdminDashboardWrapper
-          initialProperties={properties}
-          initialUsers={users}
-          initialAgents={agents}
-          stats={stats}
-        />
-      </div>
+    <div className="min-h-[calc(100vh-4rem)] bg-gray-50 flex">
+      <AdminDashboardWrapper
+        initialProperties={properties}
+        initialUsers={users}
+        initialAgents={agents}
+        initialCompanies={companies}
+        stats={stats}
+      />
     </div>
   )
 }

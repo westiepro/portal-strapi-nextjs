@@ -43,7 +43,7 @@ export default function SignupPage() {
       if (role === 'agent') {
         router.push('/agent/setup')
       } else {
-        router.push('/dashboard')
+        router.push('/user-dashboard')
       }
       router.refresh()
     }

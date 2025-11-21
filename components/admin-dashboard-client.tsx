@@ -14,6 +14,8 @@ import { LocationPicker } from '@/components/location-picker'
 import { uploadPropertyImages } from '@/lib/image-upload'
 import { createClient } from '@/lib/supabase/client'
 import { Trash2, Eye, Plus, Edit } from 'lucide-react'
+import { AllPropertiesTable } from './all-properties-table'
+import { RealEstateCompanies } from './real-estate-companies'
 import Link from 'next/link'
 import {
   AlertDialog,
@@ -38,19 +40,29 @@ interface AdminDashboardClientProps {
   initialProperties: any[]
   initialUsers: any[]
   initialAgents: any[]
+  initialCompanies?: any[]
   stats: {
     totalProperties: number
     publishedProperties: number
     totalUsers: number
     totalAgents: number
   }
+  activeTab?: string
+  onTabChange?: (tab: string) => void
+  showAllProperties?: boolean
+  showRealEstateCompanies?: boolean
 }
 
 export function AdminDashboardClient({
   initialProperties,
   initialUsers,
   initialAgents,
+  initialCompanies = [],
   stats,
+  activeTab: externalActiveTab,
+  onTabChange,
+  showAllProperties = false,
+  showRealEstateCompanies = false,
 }: AdminDashboardClientProps) {
   const router = useRouter()
   const [properties, setProperties] = useState(initialProperties)
@@ -60,6 +72,10 @@ export function AdminDashboardClient({
   const [editPropertyOpen, setEditPropertyOpen] = useState(false)
   const [editingPropertyId, setEditingPropertyId] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const [internalActiveTab, setInternalActiveTab] = useState('properties')
+  
+  const activeTab = externalActiveTab ?? internalActiveTab
+  const setActiveTab = onTabChange ?? setInternalActiveTab
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -330,6 +346,40 @@ export function AdminDashboardClient({
     setEditingPropertyId(null)
   }
 
+  // Show All Properties table view if requested
+  if (showAllProperties) {
+    return (
+      <AllPropertiesTable
+        initialProperties={properties}
+        initialAgents={agents}
+        initialCompanies={initialCompanies || []}
+        onCreateProperty={() => setCreatePropertyOpen(true)}
+        onEditProperty={handleEditProperty}
+      />
+    )
+  }
+
+  // Show Real Estate Companies view if requested
+  if (showRealEstateCompanies) {
+    return (
+      <RealEstateCompanies
+        initialCompanies={initialCompanies}
+        initialProperties={properties}
+        onCompaniesUpdate={() => {
+          // Refresh companies
+          const supabase = createClient()
+          supabase
+            .from('real_estate_companies')
+            .select('*')
+            .order('created_at', { ascending: false })
+            .then(({ data }) => {
+              // This will be handled by parent refresh
+            })
+        }}
+      />
+    )
+  }
+
   return (
     <div className="space-y-6">
       {/* Stats */}
@@ -360,7 +410,7 @@ export function AdminDashboardClient({
         </Card>
       </div>
 
-      <Tabs defaultValue="properties" className="space-y-4">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
         <TabsList>
           <TabsTrigger value="properties">Properties</TabsTrigger>
           <TabsTrigger value="users">Users</TabsTrigger>

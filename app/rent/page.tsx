@@ -83,7 +83,7 @@ export default async function RentPage({ searchParams }: RentPageProps) {
   const { data: { user } } = await supabase.auth.getUser()
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] bg-gray-50">
+    <div className="min-h-[calc(100vh-4rem)] bg-white">
       <BuyRentPageClient
         listingType="rent"
         initialProperties={properties || []}

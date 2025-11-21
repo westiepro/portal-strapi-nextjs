@@ -84,7 +84,7 @@ export default async function BuyPage({ searchParams }: BuyPageProps) {
   const { data: { user } } = await supabase.auth.getUser()
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] bg-gray-50">
+    <div className="min-h-[calc(100vh-4rem)] bg-white">
       <BuyRentPageClient
         listingType="buy"
         initialProperties={properties || []}

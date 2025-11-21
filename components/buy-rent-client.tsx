@@ -164,18 +164,18 @@ export function BuyRentPageClient({
         onSaveSearch={canSaveSearch ? () => setSaveSearchOpen(true) : undefined}
       />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Property Cards */}
-          <div className="space-y-6">
-            <div className="flex justify-between items-center">
+      <div className="w-full py-8 bg-white">
+        <div className="flex flex-col lg:flex-row gap-0">
+          {/* Property Cards - 55% width */}
+          <div className="w-full lg:w-[55%] px-4 sm:px-6 lg:px-8 bg-white">
+            <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-bold">
                 {listingType === 'buy' ? 'Properties for Sale' : 'Properties for Rent'}
               </h2>
               <p className="text-gray-600">{properties.length} properties found</p>
             </div>
             {loading ? (
-              <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {[...Array(6)].map((_, i) => (
                   <div key={i} className="h-64 bg-gray-200 animate-pulse rounded-lg" />
                 ))}
@@ -185,7 +185,7 @@ export function BuyRentPageClient({
                 <p className="text-gray-600 text-lg">No properties found matching your criteria.</p>
               </div>
             ) : (
-              <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {properties.map((property) => (
                   <PropertyCard key={property.id} property={property} />
                 ))}
@@ -193,8 +193,8 @@ export function BuyRentPageClient({
             )}
           </div>
 
-          {/* Map */}
-          <div className="sticky top-24 h-[calc(100vh-8rem)]">
+          {/* Map - 45% width, stretches to right edge */}
+          <div className="w-full lg:w-[45%] sticky top-24 h-[calc(100vh-8rem)] bg-white">
             <Map
               properties={properties}
               center={mapCenter}

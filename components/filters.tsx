@@ -6,7 +6,7 @@ import { Slider } from '@/components/ui/slider'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
-import { X } from 'lucide-react'
+import { X, DollarSign, Bed, Bath, Square, ChevronDown, Filter, Save } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 
 interface FiltersProps {
@@ -59,15 +59,16 @@ export function Filters({ listingType, onFilterChange, onSaveSearch, canSaveSear
   const hasActiveFilters = Object.values(filters).some(v => v !== undefined && (Array.isArray(v) ? v.length > 0 : true))
 
   return (
-    <div className="bg-white border-b border-gray-200 sticky top-16 z-40">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        <div className="flex items-center gap-2 flex-wrap">
+    <div className="bg-white sticky top-16 z-40 w-full">
+      <div className="w-full px-4 sm:px-6 lg:px-8 py-4">
+        <div className="flex items-center gap-3 flex-wrap">
           {/* Price Filter */}
           <Dialog open={priceOpen} onOpenChange={setPriceOpen}>
             <DialogTrigger asChild>
-              <Button variant={filters.minPrice || filters.maxPrice ? "default" : "outline"} size="sm">
+              <Button variant={filters.minPrice || filters.maxPrice ? "default" : "outline"} size="default" className="gap-2 h-11 px-4 hover:bg-blue-600 hover:text-white [&_svg]:hover:text-white">
+                <DollarSign className="h-5 w-5" />
                 Price
-                {(filters.minPrice || filters.maxPrice) && <X className="ml-2 h-3 w-3" />}
+                {(filters.minPrice || filters.maxPrice) && <X className="ml-1 h-4 w-4" />}
               </Button>
             </DialogTrigger>
             <DialogContent>
@@ -114,8 +115,9 @@ export function Filters({ listingType, onFilterChange, onSaveSearch, canSaveSear
             value={filters.propertyType?.[0] || 'any'}
             onValueChange={(value) => updateFilter('propertyType', value === 'any' ? undefined : [value])}
           >
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="w-[200px] h-11 gap-2 hover:bg-blue-600 hover:text-white [&_svg]:hover:text-white">
               <SelectValue placeholder="Property Type" />
+              <ChevronDown className="h-5 w-5 opacity-50" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="any">Any Type</SelectItem>
@@ -127,12 +129,13 @@ export function Filters({ listingType, onFilterChange, onSaveSearch, canSaveSear
             </SelectContent>
           </Select>
 
-          {/* Bed/Baths Filter */}
+          {/* Bedrooms Filter */}
           <Dialog open={bedBathOpen} onOpenChange={setBedBathOpen}>
             <DialogTrigger asChild>
-              <Button variant={(filters.minBed || filters.minBath) ? "default" : "outline"} size="sm">
-                Bed/Baths
-                {(filters.minBed || filters.minBath) && <X className="ml-2 h-3 w-3" />}
+              <Button variant={filters.minBed ? "default" : "outline"} size="default" className="gap-2 h-11 px-4 hover:bg-blue-600 hover:text-white [&_svg]:hover:text-white">
+                <Bed className="h-5 w-5" />
+                Bedrooms
+                {filters.minBed && <X className="ml-1 h-4 w-4" />}
               </Button>
             </DialogTrigger>
             <DialogContent>
@@ -192,12 +195,24 @@ export function Filters({ listingType, onFilterChange, onSaveSearch, canSaveSear
             </DialogContent>
           </Dialog>
 
+          {/* Bathrooms Filter - Same dialog as bedrooms */}
+          <Dialog open={bedBathOpen} onOpenChange={setBedBathOpen}>
+            <DialogTrigger asChild>
+              <Button variant={filters.minBath ? "default" : "outline"} size="default" className="gap-2 h-11 px-4 hover:bg-blue-600 hover:text-white [&_svg]:hover:text-white">
+                <Bath className="h-5 w-5" />
+                Bathrooms
+                {filters.minBath && <X className="ml-1 h-4 w-4" />}
+              </Button>
+            </DialogTrigger>
+          </Dialog>
+
           {/* Area Filter */}
           <Dialog open={areaOpen} onOpenChange={setAreaOpen}>
             <DialogTrigger asChild>
-              <Button variant={(filters.minArea || filters.maxArea) ? "default" : "outline"} size="sm">
-                Total Area
-                {(filters.minArea || filters.maxArea) && <X className="ml-2 h-3 w-3" />}
+              <Button variant={(filters.minArea || filters.maxArea) ? "default" : "outline"} size="default" className="gap-2 h-11 px-4 hover:bg-blue-600 hover:text-white [&_svg]:hover:text-white">
+                <Square className="h-5 w-5" />
+                Area
+                {(filters.minArea || filters.maxArea) && <X className="ml-1 h-4 w-4" />}
               </Button>
             </DialogTrigger>
             <DialogContent>
@@ -242,7 +257,10 @@ export function Filters({ listingType, onFilterChange, onSaveSearch, canSaveSear
           {/* More Filters */}
           <Sheet open={moreFiltersOpen} onOpenChange={setMoreFiltersOpen}>
             <SheetTrigger asChild>
-              <Button variant="outline" size="sm">More Filters</Button>
+              <Button variant="outline" size="default" className="gap-2 h-11 px-4 hover:bg-blue-600 hover:text-white [&_svg]:hover:text-white">
+                <Filter className="h-5 w-5" />
+                More Filters
+              </Button>
             </SheetTrigger>
             <SheetContent side="right" className="w-80">
               <SheetHeader>
@@ -259,13 +277,14 @@ export function Filters({ listingType, onFilterChange, onSaveSearch, canSaveSear
           </Sheet>
 
           {hasActiveFilters && (
-            <Button variant="ghost" size="sm" onClick={resetAll}>
+            <Button variant="ghost" size="default" className="h-11 px-4" onClick={resetAll}>
               Clear All
             </Button>
           )}
 
           {canSaveSearch && onSaveSearch && (
-            <Button variant="outline" size="sm" onClick={onSaveSearch}>
+            <Button variant="outline" size="default" className="gap-2 h-11 px-4 hover:bg-blue-600 hover:text-white [&_svg]:hover:text-white" onClick={onSaveSearch}>
+              <Save className="h-5 w-5" />
               Save Search
             </Button>
           )}

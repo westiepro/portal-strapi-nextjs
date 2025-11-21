@@ -1,6 +1,6 @@
 import { requireAuth } from '@/lib/auth'
 import { redirect } from 'next/navigation'
-import { AgentDashboardClient } from '@/components/agent-dashboard-client'
+import { AgentDashboardWrapper } from '@/components/agent-dashboard-wrapper'
 import { createClient } from '@/lib/supabase/server'
 
 async function getAgentListings(userId: string) {
@@ -11,18 +11,18 @@ async function getAgentListings(userId: string) {
     .from('agents')
     .select('id')
     .eq('user_id', userId)
-    .maybeSingle()
+    .single()
 
   // If no agent entry exists, check if user is a real estate company user
   if (!agent) {
-    const { data: company } = await supabase
+    const { data: company, error: companyError } = await supabase
       .from('real_estate_companies')
       .select('*')
       .eq('user_id', userId)
-      .maybeSingle()
+      .maybeSingle() // Use maybeSingle() to avoid errors when no company exists
 
     // If user is a real estate company, create agent entry automatically
-    if (company) {
+    if (company && !companyError) {
       const { data: newAgent, error } = await supabase
         .from('agents')
         .insert({
@@ -39,8 +39,22 @@ async function getAgentListings(userId: string) {
     }
   }
 
+  // If no agent, check if user is a real estate company
+  // Real estate companies can create properties without agent profile (agent_id will be null)
   if (!agent) {
-    return { listings: [], agentId: null }
+    const { data: company, error: companyError } = await supabase
+      .from('real_estate_companies')
+      .select('*')
+      .eq('user_id', userId)
+      .maybeSingle() // Use maybeSingle() to avoid errors when no company exists
+    
+    // If real estate company exists, allow them to proceed but return empty listings
+    // Properties without agent_id will need to be fetched separately if needed
+    if (company && !companyError) {
+      return { listings: [], agentId: null, isRealEstateCompany: true }
+    }
+    
+    return { listings: [], agentId: null, isRealEstateCompany: false }
   }
 
   // Get agent's properties
@@ -50,7 +64,7 @@ async function getAgentListings(userId: string) {
     .eq('agent_id', agent.id)
     .order('created_at', { ascending: false })
 
-  return { listings: listings || [], agentId: agent.id }
+  return { listings: listings || [], agentId: agent.id, isRealEstateCompany: false }
 }
 
 async function getAgentProfile(userId: string) {
@@ -67,18 +81,18 @@ async function getAgentProfile(userId: string) {
       )
     `)
     .eq('user_id', userId)
-    .maybeSingle()
+    .single()
 
   // If no agent entry exists, check if user is a real estate company user
   if (!agent) {
-    const { data: company } = await supabase
+    const { data: company, error: companyError } = await supabase
       .from('real_estate_companies')
       .select('*')
       .eq('user_id', userId)
-      .maybeSingle()
+      .maybeSingle() // Use maybeSingle() to avoid errors when no company exists
 
     // If user is a real estate company, create agent entry automatically
-    if (company) {
+    if (company && !companyError) {
       const { data: newAgent, error } = await supabase
         .from('agents')
         .insert({
@@ -113,7 +127,7 @@ export default async function AgentDashboardPage() {
     redirect('/')
   }
 
-  const [{ listings, agentId }, agentProfile] = await Promise.all([
+  const [{ listings, agentId, isRealEstateCompany }, agentProfile] = await Promise.all([
     getAgentListings(user.id),
     getAgentProfile(user.id),
   ])
@@ -128,20 +142,14 @@ export default async function AgentDashboardPage() {
 
   return (
     <div className="min-h-[calc(100vh-4rem)] bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">Agent Dashboard</h1>
-          <p className="text-gray-600">Manage your property listings and track performance.</p>
-        </div>
-
-        <AgentDashboardClient
-          initialListings={listings}
-          agentProfile={agentProfile}
-          agentId={agentId}
-          stats={stats}
-          userId={user.id}
-        />
-      </div>
+      <AgentDashboardWrapper
+        initialListings={listings}
+        agentProfile={agentProfile}
+        agentId={agentId}
+        stats={stats}
+        userId={user.id}
+        isRealEstateCompany={isRealEstateCompany}
+      />
     </div>
   )
 }
